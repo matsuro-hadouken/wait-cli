@@ -1,0 +1,35 @@
+name: Build and Release wait-cli
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Build release binary
+      run: cargo build --release
+
+    - name: Rename binary
+      run: |
+        mkdir dist
+        cp target/release/wait-cli dist/wait-cli
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/wait-cli
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
